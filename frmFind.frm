@@ -621,6 +621,7 @@ Private Sub makeElementsAvailable(ByVal thisType As String)
 
     frmFind.Visible = False
     If thisType = "simple" Then
+        frmFind.Caption = "Find"
         btnAdvancedFeatures.Caption = "v"
         
         fraAllframes.Top = 540
@@ -659,7 +660,7 @@ Private Sub makeElementsAvailable(ByVal thisType As String)
             btnHelp.Top = 2400
         End If
     Else
-    
+        frmFind.Caption = "Find"
         btnAdvancedFeatures.Caption = "^"
         
         frmFind.Height = 6255
