@@ -566,8 +566,7 @@ Private Sub makeElementsAvailable(ByVal thisType As String)
             fraAllframes.Top = 540 + 695
             frmFind.Height = 6255 + 695
 
-            'fraScope.Top = 1605 + 695
-            chkPatternMatching.Top = 1650 + 695
+            chkPatternMatching.Top = 1650
             btnHelp.Top = btnHelp.Top + 300
         End If
         'fraAllframes.Visible = True
