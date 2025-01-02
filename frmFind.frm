@@ -61,15 +61,15 @@ Begin VB.Form frmFind
          Begin VB.OptionButton optFromCursor 
             Caption         =   "From Cursor Pos&ition"
             Height          =   285
-            Left            =   225
+            Left            =   270
             TabIndex        =   34
             Top             =   315
             Width           =   1905
          End
          Begin VB.OptionButton optFromTop 
             Caption         =   "From th&e Top"
-            Height          =   285
-            Left            =   225
+            Height          =   270
+            Left            =   270
             TabIndex        =   33
             Top             =   630
             Value           =   -1  'True
@@ -320,10 +320,10 @@ Begin VB.Form frmFind
    Begin VB.CommandButton btnFindMenu 
       Caption         =   ">"
       Height          =   330
-      Left            =   4890
+      Left            =   4875
       TabIndex        =   4
       Top             =   120
-      Width           =   360
+      Width           =   330
    End
    Begin VB.CommandButton btnClose 
       Caption         =   "Close"
@@ -405,6 +405,13 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+'---------------------------------------------------------------------------------------
+' Form      : frmFind
+' Author    : beededea
+' Date      : 02/01/2025
+' Purpose   :
+'---------------------------------------------------------------------------------------
+
 Option Explicit
 
 Public searchType As String
@@ -412,28 +419,85 @@ Public btnReplaceClicked As Boolean
 
 ' key presses
 Public CTRL_1 As Boolean
-Public SHIFT_1 As Boolean
 
+
+'---------------------------------------------------------------------------------------
+' Procedure : btnAdvancedFeatures_Click
+' Author    : beededea
+' Date      : 02/01/2025
+' Purpose   :
+'---------------------------------------------------------------------------------------
+'
 Private Sub btnAdvancedFeatures_Click()
+   On Error GoTo btnAdvancedFeatures_Click_Error
+
     If mnuAdvancedON.Checked = True Then
         Call mnuAdvancedOFF_Click
     Else
         Call mnuAdvancedON_Click
     End If
+
+   On Error GoTo 0
+   Exit Sub
+
+btnAdvancedFeatures_Click_Error:
+
+    MsgBox "Error " & Err.Number & " (" & Err.Description & ") in procedure btnAdvancedFeatures_Click of Form frmFind"
 End Sub
 
+'---------------------------------------------------------------------------------------
+' Procedure : btnClose_Click
+' Author    : beededea
+' Date      : 02/01/2025
+' Purpose   :
+'---------------------------------------------------------------------------------------
+'
 Private Sub btnClose_Click()
+   On Error GoTo btnClose_Click_Error
+
     Unload frmFind
     Set frmFind = Nothing
+
+   On Error GoTo 0
+   Exit Sub
+
+btnClose_Click_Error:
+
+    MsgBox "Error " & Err.Number & " (" & Err.Description & ") in procedure btnClose_Click of Form frmFind"
 End Sub
 
 
 
+'---------------------------------------------------------------------------------------
+' Procedure : btnFindMenu_Click
+' Author    : beededea
+' Date      : 02/01/2025
+' Purpose   :
+'---------------------------------------------------------------------------------------
+'
 Private Sub btnFindMenu_Click()
+   On Error GoTo btnFindMenu_Click_Error
+
     Me.PopupMenu mnuTopMenu, vbPopupMenuRightButton
+
+   On Error GoTo 0
+   Exit Sub
+
+btnFindMenu_Click_Error:
+
+    MsgBox "Error " & Err.Number & " (" & Err.Description & ") in procedure btnFindMenu_Click of Form frmFind"
 End Sub
 
+'---------------------------------------------------------------------------------------
+' Procedure : btnReplace_Click
+' Author    : beededea
+' Date      : 02/01/2025
+' Purpose   :
+'---------------------------------------------------------------------------------------
+'
 Private Sub btnReplace_Click()
+
+   On Error GoTo btnReplace_Click_Error
 
     btnReplaceClicked = True
     
@@ -445,26 +509,73 @@ Private Sub btnReplace_Click()
     
     frmFind.Refresh
 
+   On Error GoTo 0
+   Exit Sub
+
+btnReplace_Click_Error:
+
+    MsgBox "Error " & Err.Number & " (" & Err.Description & ") in procedure btnReplace_Click of Form frmFind"
+
 End Sub
 
+'---------------------------------------------------------------------------------------
+' Procedure : chkTooltips_Click
+' Author    : beededea
+' Date      : 02/01/2025
+' Purpose   :
+'---------------------------------------------------------------------------------------
+'
 Private Sub chkTooltips_Click()
+   On Error GoTo chkTooltips_Click_Error
+
     Call setTooltips
+
+   On Error GoTo 0
+   Exit Sub
+
+chkTooltips_Click_Error:
+
+    MsgBox "Error " & Err.Number & " (" & Err.Description & ") in procedure chkTooltips_Click of Form frmFind"
 End Sub
 
+'---------------------------------------------------------------------------------------
+' Procedure : Form_KeyDown
+' Author    : beededea
+' Date      : 02/01/2025
+' Purpose   :
+'---------------------------------------------------------------------------------------
+'
 Private Sub Form_KeyDown(KeyCode As Integer, Shift As Integer)
+   On Error GoTo Form_KeyDown_Error
+
     Call getKeyPress(KeyCode, Shift) ' will not catch Shift or CTRL keypresses on their own, must be combination with another key.
 
+   On Error GoTo 0
+   Exit Sub
+
+Form_KeyDown_Error:
+
+    MsgBox "Error " & Err.Number & " (" & Err.Description & ") in procedure Form_KeyDown of Form frmFind"
+
 End Sub
 
 
 
 
+'---------------------------------------------------------------------------------------
+' Procedure : Form_Load
+' Author    : beededea
+' Date      : 02/01/2025
+' Purpose   :
+'---------------------------------------------------------------------------------------
+'
 Private Sub Form_Load()
+   On Error GoTo Form_Load_Error
+
     searchType = "advanced"
     
     ' key presses
     CTRL_1 = False
-    SHIFT_1 = False
     
     btnReplaceClicked = False
     frmFind.Top = 705
@@ -488,10 +599,26 @@ Private Sub Form_Load()
     Call makeElementsAvailable(searchType)
     
     Call setTooltips
+
+   On Error GoTo 0
+   Exit Sub
+
+Form_Load_Error:
+
+    MsgBox "Error " & Err.Number & " (" & Err.Description & ") in procedure Form_Load of Form frmFind"
 End Sub
 
 
+'---------------------------------------------------------------------------------------
+' Procedure : makeElementsAvailable
+' Author    : beededea
+' Date      : 02/01/2025
+' Purpose   :
+'---------------------------------------------------------------------------------------
+'
 Private Sub makeElementsAvailable(ByVal thisType As String)
+   On Error GoTo makeElementsAvailable_Error
+
     frmFind.Visible = False
     If thisType = "simple" Then
         btnAdvancedFeatures.Caption = "v"
@@ -569,16 +696,30 @@ Private Sub makeElementsAvailable(ByVal thisType As String)
             chkPatternMatching.Top = 1650
             btnHelp.Top = btnHelp.Top + 300
         End If
-        'fraAllframes.Visible = True
-
     End If
     frmFind.Visible = True
     frmFind.Refresh
-    btnFind.SetFocus
-    frmFind.SetFocus
+    btnFind.SetFocus ' to remove the focus from the basic/advanced button
+    frmFind.SetFocus ' to allow the form to respond to key presses
+
+   On Error GoTo 0
+   Exit Sub
+
+makeElementsAvailable_Error:
+
+    MsgBox "Error " & Err.Number & " (" & Err.Description & ") in procedure makeElementsAvailable of Form frmFind"
 End Sub
 
+'---------------------------------------------------------------------------------------
+' Procedure : setTooltips
+' Author    : beededea
+' Date      : 02/01/2025
+' Purpose   :
+'---------------------------------------------------------------------------------------
+'
 Private Sub setTooltips()
+   On Error GoTo setTooltips_Error
+
     If chkTooltips.Value = 1 Then
         btnFind.ToolTipText = "Click this button to commence the search"
         btnClose.ToolTipText = "This will close this search form"
@@ -642,6 +783,13 @@ Private Sub setTooltips()
         chkSubFolders.ToolTipText = vbNullString
         btnAdvancedFeatures.ToolTipText = vbNullString
     End If
+
+   On Error GoTo 0
+   Exit Sub
+
+setTooltips_Error:
+
+    MsgBox "Error " & Err.Number & " (" & Err.Description & ") in procedure setTooltips of Form frmFind"
 End Sub
 
 
@@ -681,18 +829,50 @@ Private Sub fraScope_MouseDown(Button As Integer, Shift As Integer, X As Single,
     End If
 End Sub
 
+'---------------------------------------------------------------------------------------
+' Procedure : mnuAdvancedON_Click
+' Author    : beededea
+' Date      : 02/01/2025
+' Purpose   :
+'---------------------------------------------------------------------------------------
+'
 Private Sub mnuAdvancedON_Click()
+   On Error GoTo mnuAdvancedON_Click_Error
+
     searchType = "advanced"
     mnuAdvancedOFF.Checked = False
     mnuAdvancedON.Checked = True
     Call makeElementsAvailable(searchType)
+
+   On Error GoTo 0
+   Exit Sub
+
+mnuAdvancedON_Click_Error:
+
+    MsgBox "Error " & Err.Number & " (" & Err.Description & ") in procedure mnuAdvancedON_Click of Form frmFind"
 End Sub
 
+'---------------------------------------------------------------------------------------
+' Procedure : mnuAdvancedOFF_Click
+' Author    : beededea
+' Date      : 02/01/2025
+' Purpose   :
+'---------------------------------------------------------------------------------------
+'
 Private Sub mnuAdvancedOFF_Click()
+   On Error GoTo mnuAdvancedOFF_Click_Error
+
     searchType = "simple"
     mnuAdvancedOFF.Checked = True
     mnuAdvancedON.Checked = False
     Call makeElementsAvailable(searchType)
+
+   On Error GoTo 0
+   Exit Sub
+
+mnuAdvancedOFF_Click_Error:
+
+    MsgBox "Error " & Err.Number & " (" & Err.Description & ") in procedure mnuAdvancedOFF_Click of Form frmFind"
 End Sub
 
 Private Sub optFindNext_Click()
@@ -707,7 +887,16 @@ Private Sub optListAll_Click()
         btnFind.Caption = "&Find All"
 End Sub
 
+'---------------------------------------------------------------------------------------
+' Procedure : optScope_Click
+' Author    : beededea
+' Date      : 02/01/2025
+' Purpose   :
+'---------------------------------------------------------------------------------------
+'
 Private Sub optScope_Click(Index As Integer)
+   On Error GoTo optScope_Click_Error
+
     If optScope(5).Value = True Then
         fraFolderWildcard.Enabled = True
         cmbFolder.Enabled = True
@@ -723,6 +912,13 @@ Private Sub optScope_Click(Index As Integer)
         chkSubFolders.Enabled = False
         lblFolder.Enabled = False
     End If
+
+   On Error GoTo 0
+   Exit Sub
+
+optScope_Click_Error:
+
+    MsgBox "Error " & Err.Number & " (" & Err.Description & ") in procedure optScope_Click of Form frmFind"
 End Sub
 
 
@@ -733,37 +929,17 @@ End Sub
 ' Author    : beededea
 ' Date      : 20/06/2019
 ' Purpose   : getting a keypress from the keyboard
-    '36 home
-    '40 is down
-    '38 is up
-    '37 is left
-    '39 is right
-    '33  Page up
-    '34  Page down
-    '35  End
-    'ctrl 116
-    'Shift 16
-    'f5 18
 '---------------------------------------------------------------------------------------
 '
 Public Sub getKeyPress(ByVal KeyCode As Integer, ByVal Shift As Integer)
-
-    Dim ALT_1 As Boolean
     
     On Error GoTo getkeypress_Error
-    
-    If Shift Then
-        SHIFT_1 = True
-    End If
 
     Select Case KeyCode
         Case vbKeyControl
             CTRL_1 = True
 
-        Case vbKeyShift
-            SHIFT_1 = True
-            
-        Case vbKeyF
+        Case vbKeyF ' ctrl+F for find
             If CTRL_1 = True Then
                 btnReplaceClicked = False
                 Call makeElementsAvailable(searchType)
@@ -771,35 +947,18 @@ Public Sub getKeyPress(ByVal KeyCode As Integer, ByVal Shift As Integer)
             Else
                 ' folder
             End If
-        Case vbKeyH ' H key helptoggle
+        Case vbKeyH ' ctrl+H for replace
             If CTRL_1 = True Then
                 btnReplaceClicked = True
                 Call makeElementsAvailable(searchType)
                 CTRL_1 = False
             End If
-        Case vbKeyR ' R key helptoggle
+        Case vbKeyR ' ctrl+R for replace
             If CTRL_1 = True Then
                 btnReplaceClicked = True
                 Call makeElementsAvailable(searchType)
                 CTRL_1 = False
             End If
-            
-'            Case vbKeyA ' replace all
-'            Case vbKeyC ' current Project
-'            Case vbKeyE ' from the top
-'            Case vbKeyF ' folder
-'            Case vbKeyH ' help
-'            Case vbKeyM ' current Module
-'            Case vbKeyP ' current Procedure
-'            Case vbKeyN ' find Next
-'            Case vbKeyO ' Whole Words Only
-'            Case vbKeyR ' replace
-'            Case vbKeyS ' match case
-'            Case vbKeyT ' selected Text
-'            Case vbKeyU ' use pattern matching
-'
-'            Case vbKeyM ' from cursor position
-            
     End Select
     
  
