@@ -7,6 +7,8 @@ Begin VB.Form frmFind
    ClientLeft      =   45
    ClientTop       =   390
    ClientWidth     =   7080
+   Icon            =   "frmFind.frx":0000
+   KeyPreview      =   -1  'True
    LinkTopic       =   "Form1"
    MaxButton       =   0   'False
    MinButton       =   0   'False
@@ -29,16 +31,16 @@ Begin VB.Form frmFind
       BorderStyle     =   0  'None
       ForeColor       =   &H80000008&
       Height          =   3945
-      Left            =   195
+      Left            =   150
       TabIndex        =   14
       Top             =   540
       Width           =   5280
       Begin VB.CommandButton btnAdvancedFeatures 
-         Caption         =   "?"
-         Height          =   360
+         Caption         =   "v"
+         Height          =   285
          Left            =   4695
          TabIndex        =   40
-         Top             =   0
+         Top             =   15
          Width           =   360
       End
       Begin VB.ComboBox cmbDirection 
@@ -46,7 +48,7 @@ Begin VB.Form frmFind
          Left            =   3555
          TabIndex        =   35
          Text            =   "All"
-         Top             =   0
+         Top             =   15
          Width           =   1095
       End
       Begin VB.Frame fraOrigin 
@@ -57,7 +59,7 @@ Begin VB.Form frmFind
          Top             =   360
          Width           =   2415
          Begin VB.OptionButton optFromCursor 
-            Caption         =   "From &Cursor"
+            Caption         =   "From Cursor Pos&ition"
             Height          =   285
             Left            =   225
             TabIndex        =   34
@@ -65,7 +67,7 @@ Begin VB.Form frmFind
             Width           =   1905
          End
          Begin VB.OptionButton optFromTop 
-            Caption         =   "From the &top"
+            Caption         =   "From th&e Top"
             Height          =   285
             Left            =   225
             TabIndex        =   33
@@ -110,7 +112,7 @@ Begin VB.Form frmFind
             Width           =   1995
          End
          Begin VB.OptionButton optScope 
-            Caption         =   "Folder"
+            Caption         =   "Fol&der"
             Height          =   195
             Index           =   5
             Left            =   270
@@ -168,7 +170,7 @@ Begin VB.Form frmFind
             Top             =   1095
             Width           =   2220
          End
-         Begin VB.CheckBox chkRegularExpressions 
+         Begin VB.CheckBox chkPatternMatching 
             Caption         =   "&Use Pattern Matching"
             Height          =   300
             Left            =   255
@@ -223,7 +225,7 @@ Begin VB.Form frmFind
          Height          =   345
          Left            =   2625
          TabIndex        =   36
-         Top             =   45
+         Top             =   60
          Width           =   975
       End
    End
@@ -257,7 +259,7 @@ Begin VB.Form frmFind
       Caption         =   "Folder and Wildcard Options"
       Enabled         =   0   'False
       Height          =   1215
-      Left            =   165
+      Left            =   150
       TabIndex        =   6
       Top             =   4455
       Width           =   6780
@@ -308,7 +310,7 @@ Begin VB.Form frmFind
       End
    End
    Begin VB.CommandButton btnReplace 
-      Caption         =   "R&eplace"
+      Caption         =   "&Replace"
       Height          =   420
       Left            =   5460
       TabIndex        =   5
@@ -316,11 +318,11 @@ Begin VB.Form frmFind
       Width           =   1500
    End
    Begin VB.CommandButton btnFindMenu 
-      Caption         =   "?"
-      Height          =   360
+      Caption         =   ">"
+      Height          =   330
       Left            =   4890
       TabIndex        =   4
-      Top             =   75
+      Top             =   120
       Width           =   360
    End
    Begin VB.CommandButton btnClose 
@@ -332,7 +334,7 @@ Begin VB.Form frmFind
       Width           =   1500
    End
    Begin VB.CommandButton btnFind 
-      Caption         =   "&Find"
+      Caption         =   "Fi&nd"
       Height          =   420
       Left            =   5430
       TabIndex        =   2
@@ -344,7 +346,7 @@ Begin VB.Form frmFind
       Left            =   1260
       TabIndex        =   0
       Text            =   "function(a)"
-      Top             =   90
+      Top             =   150
       Width           =   3585
    End
    Begin VB.Label lblReplaceWith 
@@ -361,7 +363,7 @@ Begin VB.Form frmFind
       Height          =   345
       Left            =   165
       TabIndex        =   1
-      Top             =   135
+      Top             =   195
       Width           =   1275
    End
    Begin VB.Menu mnuTopMenu 
@@ -408,13 +410,16 @@ Option Explicit
 Public searchType As String
 Public btnReplaceClicked As Boolean
 
+' key presses
+Public CTRL_1 As Boolean
+Public SHIFT_1 As Boolean
+
 Private Sub btnAdvancedFeatures_Click()
     If mnuAdvancedON.Checked = True Then
         Call mnuAdvancedOFF_Click
     Else
         Call mnuAdvancedON_Click
     End If
-    
 End Sub
 
 Private Sub btnClose_Click()
@@ -432,13 +437,6 @@ Private Sub btnReplace_Click()
 
     btnReplaceClicked = True
     
-    frmFind.Caption = "Replace"
-    btnReplaceAll.Enabled = True
-    fraFolderWildcard.Top = 5145
-    
-    lblReplaceWith.Visible = True
-    cmbReplace.Visible = True
-    
     If mnuAdvancedON.Checked = True Then
         Call makeElementsAvailable("advanced")
     Else
@@ -453,8 +451,21 @@ Private Sub chkTooltips_Click()
     Call setTooltips
 End Sub
 
+Private Sub Form_KeyDown(KeyCode As Integer, Shift As Integer)
+    Call getKeyPress(KeyCode, Shift) ' will not catch Shift or CTRL keypresses on their own, must be combination with another key.
+
+End Sub
+
+
+
+
 Private Sub Form_Load()
     searchType = "advanced"
+    
+    ' key presses
+    CTRL_1 = False
+    SHIFT_1 = False
+    
     btnReplaceClicked = False
     frmFind.Top = 705
     chkTooltips.Value = 1
@@ -469,9 +480,9 @@ Private Sub Form_Load()
     cmbDirection.AddItem "Down", 2
     
     If optFindNext.Value = True Then
-        btnFind.Caption = "Find Next"
+        btnFind.Caption = "Find &Next"
     Else
-        btnFind.Caption = "Find All"
+        btnFind.Caption = "Find &All"
     End If
     
     Call makeElementsAvailable(searchType)
@@ -483,6 +494,8 @@ End Sub
 Private Sub makeElementsAvailable(ByVal thisType As String)
     frmFind.Visible = False
     If thisType = "simple" Then
+        btnAdvancedFeatures.Caption = "v"
+        
         fraAllframes.Top = 540
         frmFind.Height = 2850
         
@@ -498,28 +511,36 @@ Private Sub makeElementsAvailable(ByVal thisType As String)
         chkTooltips.Visible = False
         
         fraScope.Top = 0
-        chkRegularExpressions.Top = 840
+        chkPatternMatching.Top = 840
         btnHelp.Top = 1800
         
         fraScope.Height = 1700
         fraOptions.Height = 1310
         
         If btnReplaceClicked = True Then
+        
+            frmFind.Caption = "Replace"
+            btnReplaceAll.Enabled = True
+            fraFolderWildcard.Top = 5145
+            
+            lblReplaceWith.Visible = True
+            cmbReplace.Visible = True
 
-            frmFind.Height = 2850
+            btnReplaceAll.Visible = True
             frmFind.Height = 2850 + 695
             fraAllframes.Top = 540 + 695
-
+            btnHelp.Top = 2400
         End If
     Else
     
-        'fraAllframes.Visible = False
+        btnAdvancedFeatures.Caption = "^"
         
         frmFind.Height = 6255
         fraAllframes.Top = 540
         fraScope.Top = 1605
-        chkRegularExpressions.Top = 1650
+        chkPatternMatching.Top = 1650
         btnHelp.Top = 2490
+        fraFolderWildcard.Top = 4455
         
         fraScope.Height = 2115
         fraOptions.Height = 2040
@@ -535,11 +556,18 @@ Private Sub makeElementsAvailable(ByVal thisType As String)
         chkTooltips.Visible = True
         
         If btnReplaceClicked = True Then
+        
+            frmFind.Caption = "Replace"
+            btnReplaceAll.Enabled = True
+            fraFolderWildcard.Top = 5145
+            
+            lblReplaceWith.Visible = True
+            cmbReplace.Visible = True
             fraAllframes.Top = 540 + 695
             frmFind.Height = 6255 + 695
 
             'fraScope.Top = 1605 + 695
-            chkRegularExpressions.Top = 1650 + 695
+            chkPatternMatching.Top = 1650 + 695
             btnHelp.Top = btnHelp.Top + 300
         End If
         'fraAllframes.Visible = True
@@ -547,6 +575,8 @@ Private Sub makeElementsAvailable(ByVal thisType As String)
     End If
     frmFind.Visible = True
     frmFind.Refresh
+    btnFind.SetFocus
+    frmFind.SetFocus
 End Sub
 
 Private Sub setTooltips()
@@ -561,7 +591,7 @@ Private Sub setTooltips()
         chkSkipComments.ToolTipText = "This option alters the search to skip comments completely"
         chkSkipTags.ToolTipText = "This option alters the search to skip tags completely"
         chkSkipStrings.ToolTipText = "This option alters the search to skip all strings completely"
-        chkRegularExpressions.ToolTipText = "Pattern-matching allows you to match each character against a specific character."
+        chkPatternMatching.ToolTipText = "Pattern-matching allows you to match each character against a specific character."
         optListAll.ToolTipText = "This option causes the search list to be populated so that you can see all matching results"
         optHighlightFound.ToolTipText = "This option merely highlights all matching results in the code"
         optFindNext.ToolTipText = "This is the default search behaviour, just searching for one match at a time, VB6 style"
@@ -592,7 +622,7 @@ Private Sub setTooltips()
         chkSkipComments.ToolTipText = vbNullString
         chkSkipTags.ToolTipText = vbNullString
         chkSkipStrings.ToolTipText = vbNullString
-        chkRegularExpressions.ToolTipText = vbNullString
+        chkPatternMatching.ToolTipText = vbNullString
         optListAll.ToolTipText = vbNullString
         optHighlightFound.ToolTipText = vbNullString
         optFindNext.ToolTipText = vbNullString
@@ -653,19 +683,21 @@ Private Sub fraScope_MouseDown(Button As Integer, Shift As Integer, X As Single,
 End Sub
 
 Private Sub mnuAdvancedON_Click()
+    searchType = "advanced"
     mnuAdvancedOFF.Checked = False
     mnuAdvancedON.Checked = True
-    Call makeElementsAvailable("advanced")
+    Call makeElementsAvailable(searchType)
 End Sub
 
 Private Sub mnuAdvancedOFF_Click()
+    searchType = "simple"
     mnuAdvancedOFF.Checked = True
     mnuAdvancedON.Checked = False
-    Call makeElementsAvailable("simple")
+    Call makeElementsAvailable(searchType)
 End Sub
 
 Private Sub optFindNext_Click()
-        btnFind.Caption = "&Find Next"
+        btnFind.Caption = "Find &Next"
 End Sub
 
 Private Sub optHighlightFound_Click()
@@ -692,4 +724,91 @@ Private Sub optScope_Click(Index As Integer)
         chkSubFolders.Enabled = False
         lblFolder.Enabled = False
     End If
+End Sub
+
+
+
+
+'---------------------------------------------------------------------------------------
+' Procedure : getkeypress
+' Author    : beededea
+' Date      : 20/06/2019
+' Purpose   : getting a keypress from the keyboard
+    '36 home
+    '40 is down
+    '38 is up
+    '37 is left
+    '39 is right
+    '33  Page up
+    '34  Page down
+    '35  End
+    'ctrl 116
+    'Shift 16
+    'f5 18
+'---------------------------------------------------------------------------------------
+'
+Public Sub getKeyPress(ByVal KeyCode As Integer, ByVal Shift As Integer)
+
+    Dim ALT_1 As Boolean
+    
+    On Error GoTo getkeypress_Error
+    
+    If Shift Then
+        SHIFT_1 = True
+    End If
+
+    Select Case KeyCode
+        Case vbKeyControl
+            CTRL_1 = True
+
+        Case vbKeyShift
+            SHIFT_1 = True
+            
+        Case vbKeyF
+            If CTRL_1 = True Then
+                btnReplaceClicked = False
+                Call makeElementsAvailable(searchType)
+                CTRL_1 = False
+            Else
+                ' folder
+            End If
+        Case vbKeyH ' H key helptoggle
+            If CTRL_1 = True Then
+                btnReplaceClicked = True
+                Call makeElementsAvailable(searchType)
+                CTRL_1 = False
+            End If
+        Case vbKeyR ' R key helptoggle
+            If CTRL_1 = True Then
+                btnReplaceClicked = True
+                Call makeElementsAvailable(searchType)
+                CTRL_1 = False
+            End If
+            
+'            Case vbKeyA ' replace all
+'            Case vbKeyC ' current Project
+'            Case vbKeyE ' from the top
+'            Case vbKeyF ' folder
+'            Case vbKeyH ' help
+'            Case vbKeyM ' current Module
+'            Case vbKeyP ' current Procedure
+'            Case vbKeyN ' find Next
+'            Case vbKeyO ' Whole Words Only
+'            Case vbKeyR ' replace
+'            Case vbKeyS ' match case
+'            Case vbKeyT ' selected Text
+'            Case vbKeyU ' use pattern matching
+'
+'            Case vbKeyM ' from cursor position
+            
+    End Select
+    
+ 
+    On Error GoTo 0
+   Exit Sub
+
+getkeypress_Error:
+
+    MsgBox "Error " & Err.Number & " (" & Err.Description & ") in procedure getkeypress of Module module1"
+
 End Sub
